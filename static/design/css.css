@@ -13,12 +13,33 @@ h6 {
 code {
   font-family: 'PT Mono', monospace;
 }
+
+
+
+#header {
+  width: 1200px;
+  margin: 1px auto;
+  padding: 10px 2px 2px 0px;
+}
+
+#loginForm {
+  float: right;
+  padding: 0;
+  margin: 0;
+}
+
+.loginType {
+  border: 2px solid #dddddd;
+  border-rdius: 25px;
+}
+
 #back {
   width: 900px;
   margin: 80px auto;
-  padding: 10px;
+  padding: 0px;
   overflow: hidden;
 }
+
 #content {
   float: right;
   width: 620px;

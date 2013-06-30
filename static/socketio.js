@@ -12,6 +12,10 @@ $(document).ready(function(){
     });
 
     ///////////////////////////////////////////////////////////
+    // login operation
+    ///////////////////////////////////////////////////////////
+
+    ///////////////////////////////////////////////////////////
     // opening files and navigation
     ///////////////////////////////////////////////////////////
     var canSendReadFile = true;
@@ -126,7 +130,8 @@ $(document).ready(function(){
         editingAllowed = false;
         $('#content').height('auto');
         $('#content #markdown_content').html('<textarea>' + rawMd + '</textarea>');
-      }
+        console.log("Edit button?");
+     }
     });
 
 
