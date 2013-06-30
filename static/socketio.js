@@ -11,6 +11,8 @@ $(document).ready(function(){
       changeContentHeight();
     });
 
+	var nowUserName = '';
+	
     ///////////////////////////////////////////////////////////
     // opening files and navigation
     ///////////////////////////////////////////////////////////
@@ -122,7 +124,12 @@ $(document).ready(function(){
     // editing files
     ///////////////////////////////////////////////////////////
     $(document).on('click', '#edit_save_buttons a#edit', function(){
-      if (editingAllowed == true){
+	  if (nowUserName == ''){
+	    $('#notification').html('Please Login First !!');
+        $('#notification').slideDown('fast', function(){
+          window.setTimeout(function(){$('#notification').slideUp()}, 4000);
+        });
+	  } else if (editingAllowed == true){
         editingAllowed = false;
         $('#content').height('auto');
         $('#content #markdown_content').html('<textarea>' + rawMd + '</textarea>');
@@ -137,6 +144,12 @@ $(document).ready(function(){
     var creatingNewFile = false;
 
     $(document).on('click', '#navigation a#new_file', function(){
+	  if (nowUserName == ''){
+	    $('#notification').html('Please Login First !!');
+        $('#notification').slideDown('fast', function(){
+          window.setTimeout(function(){$('#notification').slideUp()}, 4000);
+        });
+	  } else {
       fileName = '';
       rawMd = '';
       creatingNewFile = true;
@@ -152,6 +165,7 @@ $(document).ready(function(){
       $('#content #content_header input').focus();
       showButtons(true, true);
       changeContentHeight();
+	  }
     });
 
     $(document).on('click', '#edit_save_buttons a#cancel', function(){
@@ -176,11 +190,17 @@ $(document).ready(function(){
 
     creatingNewFolder = false;
     $(document).on('click', '#navigation a#new_folder', function(){
+	  if (nowUserName == ''){
+	    $('#notification').html('Please Login First !!');
+        $('#notification').slideDown('fast', function(){
+          window.setTimeout(function(){$('#notification').slideUp()}, 4000);
+        });
+	  } else {
       creatingNewFolder = true;
       fileName = '';
       rawMd = '';
       editingAllowed = false;
-
+	  
       if (creatingNewFile){
         cancelNewFile();
       }
@@ -194,6 +214,7 @@ $(document).ready(function(){
       $('#navigation a#new_folder').attr('id', 'new_folder_inactive');
       $('#navigation #tri_buttons').html('<a href="#" id="cancel_folder">Cancel</a><a href="#" id="save_folder">Create Folder</a>');
       changeContentHeight();
+	  }
     });
 
     $(document).on('click', '#navigation a#cancel_folder', function(){
@@ -242,20 +263,25 @@ $(document).ready(function(){
    
    
    
-    $(document).on('click', '#edit_save_buttons a#login', function(){
-	
+    $(document).on('click', '#loginForm a#login', function(){
 	  //----simple mode
-      socket.emit('loginWiki',{name:'aaa',pw:'111'});
+      socket.emit('loginWiki',{name:$('#loginName').val(),pw:$('#loginPw').val()});
+	  
+	  $(document).
+	  nowUserName = $('#loginName').val();
     });   
     ///////////////////////
 	//---login reply
     socket.on('loginWikiReply',function(data){
-      if (data){
+      if (data.st){
+	    $('#header').html("<div id='isLogin'> <em>Welcome Back! "+data.name+' </em><a id="logout" href="#">Logout</a></div>');
+	  
 	    $('#notification').html('Login Success');
 	    $('#notification').slideDown('fast', function(){
           window.setTimeout(function(){$('#notification').slideUp()}, 4000);
         });
 	  } else{
+	    nowUserName = '';
   	    $('#notification').html('Login Failed');
 	    $('#notification').slideDown('fast', function(){
           window.setTimeout(function(){$('#notification').slideUp()}, 4000);
@@ -263,14 +289,22 @@ $(document).ready(function(){
       }
 	});
  
+ 
+    $(document).on('click', '#isLogin a#logout', function(){
+	  //----simple mode
+      socket.emit('logoutWiki',nowUserName);
+    }); 
     ///////////////////////
 	//---logout reply
     socket.on('logoutWikiReply',function(data){
       if (data){
+	    $('#header').html('<form id="loginForm">\n<input id="loginName" class="loginType" type="text" name="name" size="10" placeholder="name"></input>\n<input id="loginPw" class="loginType" type="password" name="password" size="10" placeholder="password"></input>\n<a id="login" href="#">Login</a>\n</form>');
+		
 	    $('#notification').html('Logout Success');
 	    $('#notification').slideDown('fast', function(){
           window.setTimeout(function(){$('#notification').slideUp()}, 4000);
         });
+		nowUserName = '';
 	  } else{
   	    $('#notification').html('Logout Failed');
 	    $('#notification').slideDown('fast', function(){
@@ -288,7 +322,7 @@ $(document).ready(function(){
   ///////////////////////////////////////////////////////////
 
   function showButtons(show, newFile){
-    var buttons = '<a id="login" href="#">Logout</a>\n<a id="login" href="#">Login</a>\n<a id="edit" href="#">Edit</a>\n<a id="save" href="#">Save</a>';
+    var buttons = '<a id="edit" href="#">Edit</a>\n<a id="save" href="#">Save</a>';
     if (show){
       if (newFile){
         $('#edit_save_buttons').html('<a id="cancel" href="#">Cancel</a>\n<a id="save" href="#">Save</a>');

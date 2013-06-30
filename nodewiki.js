@@ -201,6 +201,8 @@ io.sockets.on('connection', function (socket){
   ///////////////////////////////////
   //-------login:  get user{name,pw}
   socket.on('loginWiki',function(user){
+	console.log(user);
+  
 	var mgserver = new mongodb.Server('marshal.witmob.com',27017);
 	var mgconnect = new mongodb.Db('test',mgserver);
 	mgconnect.open(function (err, db) {	  
@@ -208,13 +210,13 @@ io.sockets.on('connection', function (socket){
         collection.find({'name':user.name, 'pw':user.pw},{'name':1,'_id':0},function(err,result){
 		  result.toArray(function(err, arr){
 			console.log(arr.length);
-			if (arr.length == 1){
-			  socket.emit('loginWikiReply',true);
+			if (arr.length == 1 && Test_userstatus[user.name] != '1'){
+			  socket.emit('loginWikiReply',{name:user.name,st:true});
 			  //----------save status
-			  Test_userstatus.push(user.name);
+			  Test_userstatus[user.name] = '1';
 			  console.log(Test_userstatus);
 			}
-	        else socket.emit('loginWikiReply',false);
+			else socket.emit('loginWikiReply',{name:user.name,st:false});
           });
 		});
 	  });
@@ -224,27 +226,12 @@ io.sockets.on('connection', function (socket){
   ///////////////////////////////////
   //-------logout:  get user{name}
   socket.on('logoutWiki',function(username){
-    if (Test_userstatus[username] != null){
-	  Test_userstatus.remove(username);
+    if (Test_userstatus[username] == '1'){
+	  Test_userstatus[username] = '0';
+	  socket.emit('logoutWikiReply',true);
 	}
-	console.log(Test_userstatus);
-  
-	// var mgserver = new mongodb.Server('marshal.witmob.com',27017);
-	// var mgconnect = new mongodb.Db('test',mgserver);
-	// mgconnect.open(function (err, db) {	  
-      // db.collection('userlist', function (err, collection) {
-        // collection.find({'name':username},{'name':1,'_id':0},function(err,result){
-		  // result.toArray(function(err, arr){
-			// console.log(arr.length);
-			// if (arr.length == 1){
-			  // socket.emit('logoutWikiReply',true);
-			  ////----------save status OUT
-			// }
-	        // else socket.emit('logoutWikiReply',false);
-          // });
-		// });
-	  // });
-	// });	
+	else socket.emit('logoutWikiReply',false);
+	console.log(username);
   });
   
   /////////////////////////
