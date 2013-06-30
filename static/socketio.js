@@ -12,10 +12,6 @@ $(document).ready(function(){
     });
 
     ///////////////////////////////////////////////////////////
-    // login operation
-    ///////////////////////////////////////////////////////////
-
-    ///////////////////////////////////////////////////////////
     // opening files and navigation
     ///////////////////////////////////////////////////////////
     var canSendReadFile = true;
@@ -130,8 +126,7 @@ $(document).ready(function(){
         editingAllowed = false;
         $('#content').height('auto');
         $('#content #markdown_content').html('<textarea>' + rawMd + '</textarea>');
-        console.log("Edit button?");
-     }
+      }
     });
 
 
@@ -245,16 +240,55 @@ $(document).ready(function(){
       });
     });
    
-
-  });
+   
+   
+    $(document).on('click', '#edit_save_buttons a#login', function(){
+	
+	  //----simple mode
+      socket.emit('loginWiki',{name:'aaa',pw:'111'});
+    });   
+    ///////////////////////
+	//---login reply
+    socket.on('loginWikiReply',function(data){
+      if (data){
+	    $('#notification').html('Login Success');
+	    $('#notification').slideDown('fast', function(){
+          window.setTimeout(function(){$('#notification').slideUp()}, 4000);
+        });
+	  } else{
+  	    $('#notification').html('Login Failed');
+	    $('#notification').slideDown('fast', function(){
+          window.setTimeout(function(){$('#notification').slideUp()}, 4000);
+        });
+      }
+	});
  
-
+    ///////////////////////
+	//---logout reply
+    socket.on('logoutWikiReply',function(data){
+      if (data){
+	    $('#notification').html('Logout Success');
+	    $('#notification').slideDown('fast', function(){
+          window.setTimeout(function(){$('#notification').slideUp()}, 4000);
+        });
+	  } else{
+  	    $('#notification').html('Logout Failed');
+	    $('#notification').slideDown('fast', function(){
+          window.setTimeout(function(){$('#notification').slideUp()}, 4000);
+        });
+      }
+	});
+ 
+ 
+ 
+  });
+  
   ///////////////////////////////////////////////////////////
   // functions for the layout
   ///////////////////////////////////////////////////////////
 
   function showButtons(show, newFile){
-    var buttons = '<a id="edit" href="#">Edit</a>\n<a id="save" href="#">Save</a>';
+    var buttons = '<a id="login" href="#">Logout</a>\n<a id="login" href="#">Login</a>\n<a id="edit" href="#">Edit</a>\n<a id="save" href="#">Save</a>';
     if (show){
       if (newFile){
         $('#edit_save_buttons').html('<a id="cancel" href="#">Cancel</a>\n<a id="save" href="#">Save</a>');

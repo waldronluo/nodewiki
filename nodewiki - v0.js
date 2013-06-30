@@ -8,7 +8,6 @@ var socketio = require("socket.io");
 var mod_getopt = require('posix-getopt');
 var mdserver = require("./lib/mdserver");
 var getDir = require("./lib/getDir");
-var mongodb = require('mongodb');	//mongoDB for user
 
 
 // Defaults
@@ -195,82 +194,6 @@ io.sockets.on('connection', function (socket){
     });
   });
 
-  
-  
-  var Test_userstatus = new Array();
-  ///////////////////////////////////
-  //-------login:  get user{name,pw}
-  socket.on('loginWiki',function(user){
-	var mgserver = new mongodb.Server('marshal.witmob.com',27017);
-	var mgconnect = new mongodb.Db('test',mgserver);
-	mgconnect.open(function (err, db) {	  
-      db.collection('userlist', function (err, collection) {
-        collection.find({'name':user.name, 'pw':user.pw},{'name':1,'_id':0},function(err,result){
-		  result.toArray(function(err, arr){
-			console.log(arr.length);
-			if (arr.length == 1){
-			  socket.emit('loginWikiReply',true);
-			  //----------save status
-			  Test_userstatus.push(user.name);
-			  console.log(Test_userstatus);
-			}
-	        else socket.emit('loginWikiReply',false);
-          });
-		});
-	  });
-	});	
-  });
-  
-  ///////////////////////////////////
-  //-------logout:  get user{name}
-  socket.on('logoutWiki',function(username){
-    if (Test_userstatus[username] != null){
-	  Test_userstatus.remove(username);
-	}
-	console.log(Test_userstatus);
-  
-	// var mgserver = new mongodb.Server('marshal.witmob.com',27017);
-	// var mgconnect = new mongodb.Db('test',mgserver);
-	// mgconnect.open(function (err, db) {	  
-      // db.collection('userlist', function (err, collection) {
-        // collection.find({'name':username},{'name':1,'_id':0},function(err,result){
-		  // result.toArray(function(err, arr){
-			// console.log(arr.length);
-			// if (arr.length == 1){
-			  // socket.emit('logoutWikiReply',true);
-			  ////----------save status OUT
-			// }
-	        // else socket.emit('logoutWikiReply',false);
-          // });
-		// });
-	  // });
-	// });	
-  });
-  
-  /////////////////////////
-  //----mongoDB operation
-  function mgDbInit(){
-    var mgserver = new mongodb.Server('marshal.witmob.com',27017);
-	var mgconnect = new mongodb.Db('test',mgserver);
-	  
-	mgconnect.open(function (err, db) {
-	  db.createCollection('userlist');
-	  db.collection('userlist', function (err, collection) {
-	    collection.save({'name':'aaa', 'pw':'111'});
-		collection.save({'name':'bbb', 'pw':'222'});
-	  });
-    });
-  }
-  function mgDbClear(){
-    var mgserver = new mongodb.Server('marshal.witmob.com',27017);
-	var mgconnect = new mongodb.Db('test',mgserver);
-	  
-	mgconnect.open(function (err, db) {
-	  db.dropCollection('userlist');
-    });
-  }
-  ////////////////////////
-  
   function refreshNavLinks(){
     refreshDir();
     links = getDir.parseLinks(dir, directoryDepth);
